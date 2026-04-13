@@ -4,12 +4,38 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
+	"time"
 )
 
 const baseURL = "https://pokeapi.co/api/v2"
 
-func fetchData(url string, target any) error {
-	resp, err := http.Get(url)
+// Client -
+type Client struct {
+	httpClient http.Client
+}
+
+// NewClient -
+func NewClient(timeout time.Duration) Client {
+	return Client{
+		httpClient: http.Client{
+			Timeout: timeout,
+		},
+	}
+}
+
+func (c *Client) fetchData(address *string, target any) error {
+	if address == nil {
+		return fmt.Errorf("address is nil")
+	}
+	u, err := url.Parse(*address)
+	if err != nil {
+		return fmt.Errorf("failed to parse URL: %w", err)
+	}
+	if u.Scheme == "" {
+		*address = baseURL + "/" + *address
+	}
+	resp, err := c.httpClient.Get(*address)
 	if err != nil {
 		return fmt.Errorf("failed to fetch data: %w", err)
 	}

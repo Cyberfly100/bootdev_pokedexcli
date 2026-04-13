@@ -14,13 +14,9 @@ type cliCommand struct {
 }
 
 type config struct {
-	NextArea     string
-	PreviousArea string
-}
-
-var cfg = &config{
-	NextArea:     "https://pokeapi.co/api/v2/location-area?offset=0&limit=20",
-	PreviousArea: "",
+	pokeapiClient pokeapi.Client
+	NextArea      *string
+	PreviousArea  *string
 }
 
 var commands = map[string]cliCommand{}
@@ -52,44 +48,34 @@ func commandHelp(cfg *config) error {
 }
 
 func commandMap(cfg *config) error {
-	response, err := pokeapi.GetAreas(cfg.NextArea)
+	response, err := cfg.pokeapiClient.GetAreas(cfg.NextArea)
 	if err != nil {
 		return fmt.Errorf("failed to fetch areas: %w", err)
 	}
 	cfg.NextArea = response.Next
-	if response.Previous != nil {
-		cfg.PreviousArea = *response.Previous
-	} else {
-		cfg.PreviousArea = ""
-	}
+	cfg.PreviousArea = response.Previous
 
-	fmt.Printf("Areas:\n")
 	for _, area := range response.Results {
-		fmt.Printf(" - %s\n", area.Name)
+		fmt.Println(area.Name)
 	}
 
 	return nil
 }
 
 func commandMapb(cfg *config) error {
-	if cfg.PreviousArea == "" {
+	if cfg.PreviousArea == nil {
 		fmt.Println("you're on the first page")
 		return nil
 	}
-	response, err := pokeapi.GetAreas(cfg.PreviousArea)
+	response, err := cfg.pokeapiClient.GetAreas(cfg.PreviousArea)
 	if err != nil {
 		return fmt.Errorf("failed to fetch areas: %w", err)
 	}
 	cfg.NextArea = response.Next
-	if response.Previous != nil {
-		cfg.PreviousArea = *response.Previous
-	} else {
-		cfg.PreviousArea = ""
-	}
+	cfg.PreviousArea = response.Previous
 
-	fmt.Printf("Areas:\n")
 	for _, area := range response.Results {
-		fmt.Printf(" - %s\n", area.Name)
+		fmt.Println(area.Name)
 	}
 
 	return nil

@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func startRepl() {
+func startRepl(cfg *config) {
 	initCommands()
 	scanner := bufio.NewScanner(os.Stdin)
 	for {

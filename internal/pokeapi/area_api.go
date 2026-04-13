@@ -2,7 +2,7 @@ package pokeapi
 
 type areaResponse struct {
 	Count    int     `json:"count"`
-	Next     string  `json:"next"`
+	Next     *string `json:"next"`
 	Previous *string `json:"previous"`
 	Results  []struct {
 		Name string `json:"name"`
@@ -10,9 +10,13 @@ type areaResponse struct {
 	} `json:"results"`
 }
 
-func GetAreas(url string) (areaResponse, error) {
+func (c *Client) GetAreas(url *string) (areaResponse, error) {
 	var response areaResponse
-	err := fetchData(url, &response)
+	if url == nil {
+		url = new(string)
+		*url = "location-area?offset=0&limit=20"
+	}
+	err := c.fetchData(url, &response)
 	if err != nil {
 		return areaResponse{}, err
 	}
