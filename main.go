@@ -1,20 +1,5 @@
 package main
 
-import (
-	"bufio"
-	"fmt"
-	"os"
-)
-
 func main() {
-	scanner := bufio.NewScanner(os.Stdin)
-	for {
-		fmt.Print("Pokedex > ")
-		if !scanner.Scan() {
-			break
-		}
-		input := scanner.Text()
-		words := cleanInput(input)
-		fmt.Printf("Your command was: %v\n", words[0])
-	}
+	startRepl()
 }
