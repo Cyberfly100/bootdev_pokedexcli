@@ -24,6 +24,7 @@ func CatchPokemon(pokeData PokemonResponse) bool {
 	//log.Printf("Catch Resistance: %.2f, Random number: %.2f", catchResistance, randomNum)
 	if randomNum > catchResistance {
 		fmt.Printf("%s was caught!\n", pokeData.Name)
+		fmt.Printf("You may now inspect %s's stats using the 'inspect %s' command.\n", pokeData.Name, pokeData.Name)
 	} else {
 		fmt.Printf("%s escaped!\n", pokeData.Name)
 	}

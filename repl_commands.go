@@ -29,11 +29,12 @@ func registerCommand(name, desc string, cb func(*config, []string) error) {
 func initCommands() {
 	registerCommand("exit", "Exit the pokedex", commandExit)
 	registerCommand("help", "Show help information", commandHelp)
-	registerCommand("map", "Show next 20 areas", commandMap)
+	registerCommand("map", "Show the next 20 areas", commandMap)
 	registerCommand("mapb", "Show the previous 20 areas", commandMapb)
 	registerCommand("explore", "Explore a specific area (usage: explore <area-name>)", commandExplore)
 	registerCommand("catch", "Catch a pokemon by name (usage: catch <pokemon-name>)", commandCatch)
 	registerCommand("inspect", "Look up the stats of a caught pokemon (usage: inspect <pokemon-name>)", commandInspect)
+	registerCommand("pokedex", "List all previously caught pokemon", commandPokedex)
 }
 
 func commandExit(cfg *config, params []string) error {
@@ -142,6 +143,18 @@ func commandInspect(cfg *config, params []string) error {
 	fmt.Println("Types:")
 	for _, t := range pokemon.Types {
 		fmt.Printf(" - %s\n", t.Type.Name)
+	}
+	return nil
+}
+
+func commandPokedex(cfg *config, params []string) error {
+	if len(cfg.pokedex) == 0 {
+		fmt.Println("You haven't caught any pokemon yet!")
+		return nil
+	}
+	fmt.Println("Your Pokedex:")
+	for name := range cfg.pokedex {
+		fmt.Printf(" - %s\n", name)
 	}
 	return nil
 }
