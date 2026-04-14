@@ -1,6 +1,6 @@
 package pokeapi
 
-type exploreResponse struct {
+type ExploreResponse struct {
 	EncounterMethodRates []EncounterMethodRate `json:"encounter_method_rates"`
 	GameIndex            int64                 `json:"game_index"`
 	ID                   int64                 `json:"id"`

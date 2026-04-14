@@ -15,6 +15,7 @@ type cliCommand struct {
 
 type config struct {
 	pokeapiClient pokeapi.Client
+	pokedex       map[string]pokeapi.PokemonResponse
 	NextArea      *string
 	PreviousArea  *string
 }
@@ -31,6 +32,7 @@ func initCommands() {
 	registerCommand("map", "Show next 20 areas", commandMap)
 	registerCommand("mapb", "Show the previous 20 areas", commandMapb)
 	registerCommand("explore", "Explore a specific area (usage: explore <area-name>)", commandExplore)
+	registerCommand("catch", "Catch a pokemon by name (usage: catch <pokemon-name>)", commandCatch)
 }
 
 func commandExit(cfg *config, params []string) error {
@@ -97,6 +99,23 @@ func commandExplore(cfg *config, params []string) error {
 	fmt.Println("Pokemon found:")
 	for _, pokemon := range response.PokemonEncounters {
 		fmt.Printf(" - %s\n", pokemon.Pokemon.Name)
+	}
+	return nil
+}
+
+func commandCatch(cfg *config, params []string) error {
+	if len(params) == 0 {
+		fmt.Println("Please provide a pokemon name. Usage: catch <pokemon-name>")
+		return nil
+	}
+	pokemonName := params[0]
+	response, err := cfg.pokeapiClient.GetPokemon(pokemonName)
+	if err != nil {
+		return fmt.Errorf("failed to fetch pokemon info: %w", err)
+	}
+	success := pokeapi.CatchPokemon(response)
+	if success {
+		cfg.pokedex[pokemonName] = response
 	}
 	return nil
 }

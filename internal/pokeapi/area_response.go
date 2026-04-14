@@ -1,6 +1,6 @@
 package pokeapi
 
-type areaResponse struct {
+type AreaResponse struct {
 	Count    int     `json:"count"`
 	Next     *string `json:"next"`
 	Previous *string `json:"previous"`
