@@ -15,11 +15,13 @@ func startRepl(cfg *config) {
 		if !scanner.Scan() {
 			break
 		}
-		command := cleanInput(scanner.Text())[0]
+		user_input := cleanInput(scanner.Text())
+		command := user_input[0]
+		params := user_input[1:]
 		if cmd, ok := commands[command]; !ok {
 			fmt.Printf("Unknown command: %s\n", command)
 		} else {
-			if err := cmd.callback(cfg); err != nil {
+			if err := cmd.callback(cfg, params); err != nil {
 				fmt.Printf("Error executing command: %v\n", err)
 			}
 		}

@@ -10,7 +10,7 @@ import (
 type cliCommand struct {
 	name        string
 	description string
-	callback    func(*config) error
+	callback    func(*config, []string) error
 }
 
 type config struct {
@@ -21,7 +21,7 @@ type config struct {
 
 var commands = map[string]cliCommand{}
 
-func registerCommand(name, desc string, cb func(*config) error) {
+func registerCommand(name, desc string, cb func(*config, []string) error) {
 	commands[name] = cliCommand{name: name, description: desc, callback: cb}
 }
 
@@ -30,15 +30,16 @@ func initCommands() {
 	registerCommand("help", "Show help information", commandHelp)
 	registerCommand("map", "Show next 20 areas", commandMap)
 	registerCommand("mapb", "Show the previous 20 areas", commandMapb)
+	registerCommand("explore", "Explore a specific area (usage: explore <area-name>)", commandExplore)
 }
 
-func commandExit(cfg *config) error {
+func commandExit(cfg *config, params []string) error {
 	fmt.Println("Closing the Pokedex... Goodbye!")
 	os.Exit(0)
 	return nil
 }
 
-func commandHelp(cfg *config) error {
+func commandHelp(cfg *config, params []string) error {
 	fmt.Println("Welcome to the Pokedex!")
 	fmt.Println("Usage:")
 	fmt.Println("")
@@ -48,7 +49,7 @@ func commandHelp(cfg *config) error {
 	return nil
 }
 
-func commandMap(cfg *config) error {
+func commandMap(cfg *config, params []string) error {
 	response, err := cfg.pokeapiClient.GetAreas(cfg.NextArea)
 	if err != nil {
 		return fmt.Errorf("failed to fetch areas: %w", err)
@@ -63,7 +64,7 @@ func commandMap(cfg *config) error {
 	return nil
 }
 
-func commandMapb(cfg *config) error {
+func commandMapb(cfg *config, params []string) error {
 	if cfg.PreviousArea == nil {
 		fmt.Println("you're on the first page")
 		return nil
@@ -79,5 +80,23 @@ func commandMapb(cfg *config) error {
 		fmt.Println(area.Name)
 	}
 
+	return nil
+}
+
+func commandExplore(cfg *config, params []string) error {
+	if len(params) == 0 {
+		fmt.Println("Please provide an area name. Usage: explore <area-name>")
+		return nil
+	}
+	areaName := params[0]
+	fmt.Printf("Exploring %s...\n", areaName)
+	response, err := cfg.pokeapiClient.ExploreArea(areaName)
+	if err != nil {
+		return fmt.Errorf("failed to explore area: %w", err)
+	}
+	fmt.Println("Pokemon found:")
+	for _, pokemon := range response.PokemonEncounters {
+		fmt.Printf(" - %s\n", pokemon.Pokemon.Name)
+	}
 	return nil
 }

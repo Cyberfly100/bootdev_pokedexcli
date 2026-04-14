@@ -1,14 +1,6 @@
 package pokeapi
 
-type areaResponse struct {
-	Count    int     `json:"count"`
-	Next     *string `json:"next"`
-	Previous *string `json:"previous"`
-	Results  []struct {
-		Name string `json:"name"`
-		URL  string `json:"url"`
-	} `json:"results"`
-}
+import "fmt"
 
 func (c *Client) GetAreas(url *string) (areaResponse, error) {
 	var response areaResponse
@@ -19,6 +11,17 @@ func (c *Client) GetAreas(url *string) (areaResponse, error) {
 	err := c.fetchData(url, &response)
 	if err != nil {
 		return areaResponse{}, err
+	}
+
+	return response, nil
+}
+
+func (c *Client) ExploreArea(area string) (exploreResponse, error) {
+	var response exploreResponse
+	url := fmt.Sprintf("location-area/%s", area)
+	err := c.fetchData(&url, &response)
+	if err != nil {
+		return exploreResponse{}, err
 	}
 
 	return response, nil
