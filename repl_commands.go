@@ -27,12 +27,13 @@ func registerCommand(name, desc string, cb func(*config, []string) error) {
 }
 
 func initCommands() {
-	registerCommand("exit", "Exit the Pokedex", commandExit)
+	registerCommand("exit", "Exit the pokedex", commandExit)
 	registerCommand("help", "Show help information", commandHelp)
 	registerCommand("map", "Show next 20 areas", commandMap)
 	registerCommand("mapb", "Show the previous 20 areas", commandMapb)
 	registerCommand("explore", "Explore a specific area (usage: explore <area-name>)", commandExplore)
 	registerCommand("catch", "Catch a pokemon by name (usage: catch <pokemon-name>)", commandCatch)
+	registerCommand("inspect", "Look up the stats of a caught pokemon (usage: inspect <pokemon-name>)", commandInspect)
 }
 
 func commandExit(cfg *config, params []string) error {
@@ -116,6 +117,31 @@ func commandCatch(cfg *config, params []string) error {
 	success := pokeapi.CatchPokemon(response)
 	if success {
 		cfg.pokedex[pokemonName] = response
+	}
+	return nil
+}
+
+func commandInspect(cfg *config, params []string) error {
+	if len(params) == 0 {
+		fmt.Println("Please provide a pokemon name. Usage: inspect <pokemon-name>")
+		return nil
+	}
+	pokemonName := params[0]
+	pokemon, exists := cfg.pokedex[pokemonName]
+	if !exists {
+		fmt.Printf("You haven't caught %s yet!\n", pokemonName)
+		return nil
+	}
+	fmt.Printf("Name: %s\n", pokemon.Name)
+	fmt.Printf("Height: %d\n", pokemon.Height)
+	fmt.Printf("Weight: %d\n", pokemon.Weight)
+	fmt.Println("Stats:")
+	for _, stat := range pokemon.Stats {
+		fmt.Printf(" - %s: %d\n", stat.Stat.Name, stat.BaseStat)
+	}
+	fmt.Println("Types:")
+	for _, t := range pokemon.Types {
+		fmt.Printf(" - %s\n", t.Type.Name)
 	}
 	return nil
 }
